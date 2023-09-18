@@ -1,30 +1,22 @@
 import { Address, Enrollment } from '@prisma/client';
 import { request } from '@/utils/request';
-import { invalidDataError } from '@/errors';
+import { invalidDataError, requestError } from '@/errors';
 import { addressRepository, CreateAddressParams, enrollmentRepository, CreateEnrollmentParams } from '@/repositories';
 import { exclude } from '@/utils/prisma-utils';
-
-type AddressCep = {
-  logradouro: string;
-  complemento: string;
-  bairro: string;
-  cidade: string;
-  uf: string;
-}
 
 async function validateCep(cep: string) {
   const validCep = /(^\d{8}$)|(^\d{5}[-]\d{3}$)/;
 
-  if (!validCep.test(cep)) throw invalidDataError('Insert a valid cep format (00000-000)');
+  if (!validCep.test(cep)) throw requestError(400, 'Insert a valid cep format (00000-000)');
 
   const result = await request.get(`${process.env.VIA_CEP_API}/${cep}/json/`);
 
-  if (result.data.erro === true) throw invalidDataError('Incorrect cep');
+  if (result.data.erro === true) throw requestError(400, 'Incorrect cep');
 
   return result.data;
 }
 
-async function getAddressFromCEP(cep: string): Promise<AddressCep> {
+async function getAddressFromCEP(cep: string) {
   const result = await validateCep(cep);
   
   return {
@@ -65,7 +57,7 @@ async function createOrUpdateEnrollmentWithAddress(params: CreateOrUpdateEnrollm
   enrollment.birthday = new Date(enrollment.birthday);
   const address = getAddressForUpsert(params.address);
 
-  await validateCep(params.address.cep);
+  await getAddressFromCEP(address.cep);
 
   const newEnrollment = await enrollmentRepository.upsert(params.userId, enrollment, exclude(enrollment, 'userId'));
 
