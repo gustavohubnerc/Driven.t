@@ -27,9 +27,16 @@ async function getTicketFromUser(ticketId: number) {
     })
 }
 
-async function createTicket(ticket: Ticket) {
+async function createTicket(enrollmentId: number, ticketTypeId: number) {
     return await prisma.ticket.create({
-        data: ticket
+        data: {
+            enrollmentId,
+            ticketTypeId,
+            status: 'RESERVED'
+        },
+        include: {
+            TicketType: true
+        }
     })
 }
 

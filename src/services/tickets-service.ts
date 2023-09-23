@@ -1,4 +1,4 @@
-import { notFoundError } from "@/errors";
+import { notFoundError, requestError } from "@/errors";
 import { ticketRepository } from "@/repositories/tickets-repository"
 
 async function getTicketTypes() {
@@ -20,7 +20,23 @@ async function getTicketFromUser(userId: number) {
     return ticket;
 }
 
+async function createTicket(userId: number, ticketTypeId: number) {
+    if (!ticketTypeId) {
+        throw requestError(400, 'ticketTypeId is required');
+    }
+
+    const checkEnrollment = await ticketRepository.getEnrollmentFromUser(userId);
+    if (!checkEnrollment) {
+        throw notFoundError();
+    }
+
+    const ticket = await ticketRepository.createTicket(checkEnrollment.id, ticketTypeId);
+    return ticket;
+}
+
+
 export const ticketsService = {
     getTicketTypes,
-    getTicketFromUser
+    getTicketFromUser,
+    createTicket
 }

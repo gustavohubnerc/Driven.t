@@ -13,7 +13,13 @@ async function getTicketFromUser(req: AuthenticatedRequest, res: Response) {
     return res.status(httpStatus.OK).send(ticket);
 }
 
+async function createTicket(req: AuthenticatedRequest, res: Response) {
+    const ticket = await ticketsService.createTicket(req.userId, req.body.ticketTypeId);
+    return res.status(httpStatus.CREATED).send(ticket);
+}
+
 export const ticketsController = {
     getTicketTypes,
-    getTicketFromUser
+    getTicketFromUser,
+    createTicket
 }
