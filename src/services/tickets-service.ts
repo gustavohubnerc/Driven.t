@@ -7,12 +7,12 @@ async function getTicketTypes() {
 }
 
 async function getTicketFromUser(userId: number) {
-    const checkUser = await ticketRepository.getEnrollmentFromUser(userId);
-    if (!checkUser) {
+    const checkEnrollment = await ticketRepository.getEnrollmentFromUser(userId);
+    if (!checkEnrollment) {
         throw notFoundError();
     }
     
-    const ticket = await ticketRepository.getTicketFromUser(checkUser.id);
+    const ticket = await ticketRepository.getTicketFromUser(checkEnrollment.id);
     if (!ticket) {
         throw notFoundError();
     }

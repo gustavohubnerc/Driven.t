@@ -5,7 +5,7 @@ import { authenticateToken, validateBody } from '@/middlewares';
 const ticketsRouter = Router();
 
 ticketsRouter
-    //.all('/*', authenticateToken)
+    .all('/*', authenticateToken)
     .get('/types', ticketsController.getTicketTypes)
     .get('/', ticketsController.getTicketFromUser)
 
