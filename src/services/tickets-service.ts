@@ -1,5 +1,6 @@
 import { notFoundError, requestError } from "@/errors";
 import { ticketRepository } from "@/repositories/tickets-repository"
+import { enrollmentRepository } from '@/repositories/enrollments-repository';
 
 async function getTicketTypes() {
     const ticketTypes = await ticketRepository.getTicketTypes();
@@ -7,12 +8,12 @@ async function getTicketTypes() {
 }
 
 async function getTicketFromUser(userId: number) {
-    const checkEnrollment = await ticketRepository.getEnrollmentFromUser(userId);
+    const checkEnrollment = await enrollmentRepository.findWithAddressByUserId(userId);
     if (!checkEnrollment) {
         throw notFoundError();
     }
     
-    const ticket = await ticketRepository.getTicketFromUser(checkEnrollment.id);
+    const ticket = await ticketRepository.getEnrollmentFromUser(checkEnrollment.id);
     if (!ticket) {
         throw notFoundError();
     }
@@ -25,13 +26,12 @@ async function createTicket(userId: number, ticketTypeId: number) {
         throw requestError(400, 'ticketTypeId is required');
     }
 
-    const checkEnrollment = await ticketRepository.getEnrollmentFromUser(userId);
+    const checkEnrollment = await enrollmentRepository.findWithAddressByUserId(userId);
     if (!checkEnrollment) {
         throw notFoundError();
     }
 
-    const ticket = await ticketRepository.createTicket(checkEnrollment.id, ticketTypeId);
-    return ticket;
+    return await ticketRepository.createTicket(checkEnrollment.id, ticketTypeId);
 }
 
 
