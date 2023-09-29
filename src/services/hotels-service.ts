@@ -3,10 +3,16 @@ import { hotelsRepository } from "@/repositories/hotels-repository";
 
 async function listHotels(userId: number){
     const userEnrollment = await hotelsRepository.getUserEnrollment(userId);
-    if (!userEnrollment.Ticket.TicketType.includesHotel) throw requestError(402, 'Ticket does not include hotel');
-    if (userEnrollment.Ticket.status !== 'PAID') throw requestError(402, 'Ticket is not paid');
-    if (userEnrollment.Ticket.TicketType.isRemote) throw requestError(402, 'Ticket is remote');
     if (!userEnrollment) throw notFoundError();
+
+    const paidTicket = userEnrollment.Ticket.status === 'PAID';
+    if (!paidTicket) throw requestError(402, 'Ticket is not paid');
+
+    const includesHotel = userEnrollment.Ticket.TicketType.includesHotel;
+    if (!includesHotel) throw requestError(402, 'Ticket does not include hotel');
+
+    const isRemote = userEnrollment.Ticket.TicketType.isRemote;
+    if (isRemote) throw requestError(402, 'Ticket is remote');
 
     const hotels = await hotelsRepository.listHotels();
     if (!hotels) throw notFoundError();
@@ -16,10 +22,16 @@ async function listHotels(userId: number){
 
 async function getHotelRooms(userId: number, hotelId: number) {
     const userEnrollment = await hotelsRepository.getUserEnrollment(userId);
-    if (!userEnrollment.Ticket.TicketType.includesHotel) throw requestError(402, 'Ticket does not include hotel');
-    if (userEnrollment.Ticket.status !== 'PAID') throw requestError(402, 'Ticket is not paid');
-    if (userEnrollment.Ticket.TicketType.isRemote) throw requestError(402, 'Ticket is remote');
     if (!userEnrollment) throw notFoundError();
+
+    const paidTicket = userEnrollment.Ticket.status === 'PAID';
+    if (!paidTicket) throw requestError(402, 'Ticket is not paid');
+
+    const includesHotel = userEnrollment.Ticket.TicketType.includesHotel;
+    if (!includesHotel) throw requestError(402, 'Ticket does not include hotel');
+
+    const isRemote = userEnrollment.Ticket.TicketType.isRemote;
+    if (isRemote) throw requestError(402, 'Ticket is remote');
 
     const hotels = await hotelsRepository.listHotels();
     if (!hotels) throw notFoundError();
