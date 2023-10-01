@@ -229,7 +229,7 @@ describe ("GET /hotels/:id", () => {
             expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
         });
 
-        it("should responde with status 200 and hotel data", async ()=>{
+        it("should respond with status 200 and hotel data", async ()=>{
             const user = await createUser();
             const token = await generateValidToken(user);
             const enrollment = await createEnrollmentWithAddress(user);
