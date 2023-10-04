@@ -1,16 +1,11 @@
-import { prisma } from "@/config";
-import { notFoundError } from "@/errors";
+import { prisma } from '@/config';
 
-async function listHotels() {
-  const hotels = await prisma.hotel.findMany();
-  if (hotels.length === 0) {
-    throw notFoundError();
-  }
-  return hotels;
+async function findHotels() {
+  return prisma.hotel.findMany();
 }
 
-async function getHotelRooms(hotelId: number) {
-  const result = await prisma.hotel.findUnique({
+async function findRoomsByHotelId(hotelId: number) {
+  return prisma.hotel.findFirst({
     where: {
       id: hotelId,
     },
@@ -18,15 +13,9 @@ async function getHotelRooms(hotelId: number) {
       Rooms: true,
     },
   });
-
-  if (!result) {
-    throw notFoundError();
-  };
-
-  return result;
 }
 
-export const hotelsRepository = {
-    listHotels,
-    getHotelRooms
+export const hotelRepository = {
+  findHotels,
+  findRoomsByHotelId,
 };
