@@ -53,7 +53,17 @@ async function createBooking(userId: number, roomId: number) {
     };
 }
 
-async function updateBooking(userId: number, roomId: number) {
+async function updateBooking(userId: number, roomId: number, bookingId: number) {
+    const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
+    if (!enrollment) {
+        throw notFoundError();
+    }
+
+    const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
+    if (!ticket) {
+        throw notFoundError();
+    }
+
     const roomInfo = await bookingsRepository.roomInfo(roomId);
     if (!roomInfo) {
         throw notFoundError();
@@ -65,6 +75,10 @@ async function updateBooking(userId: number, roomId: number) {
 
     const booking = await bookingsRepository.getBooking(userId);
     if (!booking) {
+        throw forbiddenError();
+    }
+
+    if (booking.id !== bookingId) {
         throw forbiddenError();
     }
 
