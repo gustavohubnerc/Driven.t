@@ -5,8 +5,9 @@ import { getBooking, createBooking } from '@/controllers/bookings-controller';
 const bookingsRouter = Router();
 
 bookingsRouter
-  //.all('/*', authenticateToken)
+  .all('/*', authenticateToken)
   .get('/', getBooking)
-  .post('/', createBooking);
+  .post('/', createBooking)
+
 
 export { bookingsRouter };
