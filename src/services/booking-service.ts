@@ -20,7 +20,7 @@ async function getBooking(userId: number) {
     }
 
     return {
-        bookingId: booking.id,
+        id: booking.id,
         Room: booking.Room
     };
 }

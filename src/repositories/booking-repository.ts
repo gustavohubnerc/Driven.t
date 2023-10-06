@@ -15,8 +15,8 @@ async function createBooking(userId: number, roomId: number) {
           userId,
           roomId
         },
-        select: {
-          id: true
+        include: {
+          Room: true
         }
     });
 }
