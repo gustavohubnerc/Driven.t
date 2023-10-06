@@ -6,7 +6,6 @@ import faker from '@faker-js/faker';
 import * as jwt from 'jsonwebtoken';
 import { createEnrollmentWithAddress, createPayment, createTicket, createTicketType, createUser } from '../factories';
 import { TicketStatus } from '@prisma/client';
-import { bookingsRepository } from '@/repositories';
 
 beforeAll(async () => {
     await init();

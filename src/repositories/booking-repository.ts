@@ -23,21 +23,22 @@ async function createBooking(userId: number, roomId: number) {
 
 async function roomInfo(roomId: number) {
     return await prisma.room.findFirst({
-        where: { id: roomId },
-        select: {
-            capacity: true,
-            Booking: true
+        where: {
+             id: roomId
         },
+        include: {
+            Booking: true
+        }
     });
 }
 
-async function updateBooking(id: number, roomId: number) {
+async function updateBooking(bookingId: number, roomId: number) {
     return await prisma.booking.update({
+        where: {
+            id: bookingId
+        },
         data: {
             roomId
-        },
-        where: {
-            id
         },
         select: {
             id: true

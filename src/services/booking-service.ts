@@ -1,6 +1,6 @@
 import { forbiddenError, notFoundError } from "@/errors";
 import { enrollmentRepository, ticketsRepository } from "@/repositories";
-import { bookingsRepository } from "@/repositories/bookings-repository";
+import { bookingsRepository } from "@/repositories/booking-repository";
 import { exclude } from '@/utils/prisma-utils';
 
 async function getBooking(userId: number) {
@@ -19,7 +19,10 @@ async function getBooking(userId: number) {
         throw notFoundError();
     }
 
-    return exclude(booking, 'createdAt', 'updatedAt');
+    return {
+        bookingId: booking.id,
+        Room: booking.Room
+    };
 }
 
 async function createBooking(userId: number, roomId: number) {
@@ -68,11 +71,11 @@ async function updateBooking(userId: number, roomId: number, bookingId: number) 
         throw forbiddenError();
     }
 
-
-    const updatedBooking = await bookingsRepository.updateBooking(userId, roomId);
+    const updatedBooking = await bookingsRepository.updateBooking(bookingId, roomId);
 
     return {
         bookingId: updatedBooking.id,
+        Room: booking.Room
     };
 }
 
