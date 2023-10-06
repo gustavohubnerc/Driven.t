@@ -63,7 +63,7 @@ async function updateBooking(userId: number, roomId: number, bookingId: number) 
     }
 
     const roomInfo = await bookingsRepository.roomInfo(roomId);
-    if (!roomInfo) {
+    if (!roomInfo || roomInfo.id !== roomId) {
         throw notFoundError();
     }
 
@@ -74,8 +74,7 @@ async function updateBooking(userId: number, roomId: number, bookingId: number) 
     const updatedBooking = await bookingsRepository.updateBooking(bookingId, roomId);
 
     return {
-        bookingId: updatedBooking.id,
-        Room: booking.Room
+        bookingId: updatedBooking.id
     };
 }
 

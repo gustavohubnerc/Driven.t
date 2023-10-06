@@ -175,7 +175,7 @@ describe('POST /booking', () => {
             const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
             await createPayment(ticket.id, ticketType.price);
 
-            const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId: 1 });
+            const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId: 1988798789 });
 
             expect(response.status).toBe(httpStatus.NOT_FOUND);
         })
@@ -228,10 +228,66 @@ describe('PUT /booking', () => {
         it('should respond with status 403 if user does not have a booking', async () => {
             const user = await createUser();
             const token = await generateValidToken(user);
+            const enrollment = await createEnrollmentWithAddress(user);
+            const ticketType = await createTicketType(false, true);
+            const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+            await createPayment(ticket.id, ticketType.price);
+            const hotel = await createHotel();
+            const room = await createRoomWithHotelId(hotel.id);
 
-            const response = await server.put('/booking').set('Authorization', `Bearer ${token}`);
+            const response = await server.put('/booking/1').set('Authorization', `Bearer ${token}`).send({ roomId: room.id });
 
             expect(response.status).toBe(httpStatus.FORBIDDEN);
+        });
+
+        it('should respond with status 403 if room has no vacancy', async () => {
+            const user = await createUser();
+            const token = await generateValidToken(user);
+            const enrollment = await createEnrollmentWithAddress(user);
+            const ticketType = await createTicketType(false, true);
+            const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+            await createPayment(ticket.id, ticketType.price);
+            const hotel = await createHotel();
+            const room = await createRoomWithNoVacancy(hotel.id);
+
+            const response = await server.put('/booking/1').set('Authorization', `Bearer ${token}`).send({ roomId: room.id });
+
+            expect(response.status).toBe(httpStatus.FORBIDDEN);            
+        });
+
+        it('should respond with status 404 if room does not exist', async () => {
+            const user = await createUser();
+            const token = await generateValidToken(user);
+            const enrollment = await createEnrollmentWithAddress(user);
+            const ticketType = await createTicketType(false, true);
+            const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+            await createPayment(ticket.id, ticketType.price);
+            await createHotel();
+
+            const roomId: number = 3122152465465;
+            
+            const response = await server.put('/booking/1').set('Authorization', `Bearer ${token}`).send({ roomId: roomId });
+
+            expect(response.status).toBe(httpStatus.FORBIDDEN);
+        });
+
+        it('should respond with status 200 and with bookindId', async () => {
+            const user = await createUser();
+            const token = await generateValidToken(user);
+            const enrollment = await createEnrollmentWithAddress(user);
+            const ticketType = await createTicketType(false, true);
+            const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+            await createPayment(ticket.id, ticketType.price);
+            const hotel = await createHotel();
+            const room = await createRoomWithHotelId(hotel.id);
+            const booking = await createBooking(user.id, room.id);
+
+            const response = await server.put(`/booking/${booking.id}`).set('Authorization', `Bearer ${token}`).send({ roomId: room.id });
+
+            expect(response.status).toBe(httpStatus.OK);
+            expect(response.body).toEqual({
+                bookingId: booking.id
+            });
         });
     });
 });
