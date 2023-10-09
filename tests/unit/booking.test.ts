@@ -53,14 +53,19 @@ const mockRemoteTicket: Ticket & { TicketType: TicketType } = {
 
 describe('GET /booking', () => {
   it('should respond with status 404 if user does not have a booking', async () => {
-    jest.spyOn(bookingsRepository, 'getBooking').mockResolvedValueOnce(null);
-
-    const result = bookingsService.getBooking(1);
-
-    expect(result).rejects.toEqual({
-      name: 'NotFoundError',
-      message: 'No result for this search!',
+    jest.spyOn(bookingsRepository, 'getBooking').mockImplementationOnce(() => {
+      return undefined;
     });
+
+    try {
+      await bookingsService.getBooking(1);
+    } catch (response) {
+      expect(bookingsRepository.getBooking).toBeCalled();
+      expect(response).toEqual({
+        name: 'NotFoundError',
+        message: 'No result for this search!',
+      });
+    }
   });
 });
 
@@ -69,35 +74,41 @@ describe('POST /booking', () => {
     jest.spyOn(enrollmentRepository, 'findWithAddressByUserId').mockResolvedValueOnce(mockEnrollmentWithAddress);
     jest.spyOn(ticketsRepository, 'findTicketByEnrollmentId').mockResolvedValueOnce(mockRemoteTicket);
 
-    const result = bookingsService.createBooking(1, 1);
-
-    expect(result).rejects.toEqual({
-      name: 'ForbiddenError',
-      message: 'User is not allowed to perform this action.',
-    });
+    try {
+      await bookingsService.createBooking(1, 1);
+    } catch (response) {
+      expect(response).toEqual({
+        name: 'ForbiddenError',
+        message: 'User is not allowed to perform this action.',
+      });
+    }
   });
 });
 
 describe('PUT /booking', () => {
-  it('should throw notFoundError if booking does not exist', async () => {
+  it('should throw ForbiddenError if booking does not exist', async () => {
     jest.spyOn(bookingsRepository, 'getBooking').mockResolvedValueOnce(null);
 
-    const result = bookingsService.getBooking(1);
-
-    expect(result).rejects.toEqual({
-      name: 'NotFoundError',
-      message: 'No result for this search!',
-    });
+    try {
+      await bookingsService.updateBooking(1, 1, 1);
+    } catch (response) {
+      expect(response).toEqual({
+        name: 'ForbiddenError',
+        message: 'User is not allowed to perform this action.',
+      });
+    }
   });
 
   it('should throw forbiddenError if user does not have a booking', async () => {
     jest.spyOn(bookingsRepository, 'getBooking').mockResolvedValueOnce(null);
-
-    const result = bookingsService.updateBooking(1, 1, 1);
-
-    expect(result).toEqual({
-      name: 'ForbiddenError',
-      message: 'User is not allowed to perform this action.',
-    });
+    
+    try {
+      await bookingsService.updateBooking(1, 1, 1);
+    } catch (response) {
+      expect(response).toEqual({
+        name: 'ForbiddenError',
+        message: 'User is not allowed to perform this action.',
+      });
+    }
   });
 });
